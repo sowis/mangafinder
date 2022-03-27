@@ -1,0 +1,28 @@
+{
+    "manifest_version": 2,
+    "name": "manga Finder",
+    "version": "1.0.0",
+    "description": "fast manga search by context menu",
+
+    "icons": {
+        "128": "icons/icon128.png",
+        "48": "icons/icon48.png",
+        "16": "icons/icon16.png"
+    },
+
+    "background": {
+        "scripts": ["background.js"]
+    },
+
+    "content_scripts":[
+        {
+            "matches":["https://gall.dcinside.com/*", "https://saucenao.com/*"],
+            "js":["contents.js"]
+        }
+    ],
+
+    "permissions": [
+        "tabs",
+        "contextMenus"
+    ]
+}
