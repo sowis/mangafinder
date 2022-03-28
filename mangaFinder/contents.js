@@ -1,4 +1,4 @@
-const server_ip_adderss = '127.0.0.1:6974'
+const server_ip_adderss = '192.168.0.10:6974'
 
 let clickedElement = null;
 
@@ -57,9 +57,9 @@ chrome.runtime.onMessage.addListener(async function(message) {
     if (message.clicked != true) {
         return;
     }
-
+    
     const clickData = message.clickData;
-    const response = await fetch('http://' + server_ip_adderss + '/?srcUrl=' + encodeURIComponent(clickData.srcUrl) + '&pageUrl=' + encodeURIComponent(clickData.pageUrl));
+    const response = await fetch('https://' + server_ip_adderss + '/?srcUrl=' + encodeURIComponent(clickData.srcUrl) + '&pageUrl=' + encodeURIComponent(clickData.pageUrl));
     const blob = await response.blob();
     search(blob);
 });

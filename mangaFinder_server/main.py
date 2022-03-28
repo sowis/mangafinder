@@ -1,52 +1,33 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
 import requests
-from urllib import parse
+from flask_cors import CORS
+from flask import Flask
+from flask import request
+import ssl
 
 session = requests.Session()
 
-class MyHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        querys = {}
-        if '?' in self.path:
-            qs = self.path.split('?')[1].split('&')
-            for query in qs:
-                sp = query.split('=')
-                querys[parse.unquote(sp[0])] = parse.unquote(sp[1])
+app = Flask(__name__)
+CORS(app)
 
-        if "srcUrl" not in querys:
-            self.send_response_only(403)
-            self.send_header('Content-Type', 'text/plan')
-            self.end_headers()
-            self.wfile.write("forbidden")
+@app.route("/", methods=['GET'])
+def data():
+    srcUrl = request.args.get('srcUrl')
+    pageUrl = request.args.get('pageUrl')
 
-        if "pageUrl" not in querys:
-            self.send_response_only(403)
-            self.send_header('Content-Type', 'text/plan')
-            self.end_headers()
-            self.wfile.write("forbidden")
+    url_query = {}
+    for q in pageUrl.split('?')[1].split('&'):
+        url_query[q.split('=')[0]] = q.split('=')[1]
 
-        url_query = {}
-        for q in querys['pageUrl'].split('?')[1].split('&'):
-            url_query[q.split('=')[0]] = q.split('=')[1]
+    mobile_url = "https://m.dcinside.com/board/" + url_query["id"] + "/" + url_query["no"]
 
-        mobile_url = "https://m.dcinside.com/board/" + url_query["id"] + "/" + url_query["no"]
-
-        headers = {'User-Agent':'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Mobile Safari/537.36',
+    headers = {'User-Agent':'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Mobile Safari/537.36',
         'Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
         'Referer': mobile_url}
 
-        req = session.get(querys['srcUrl'], headers = headers, timeout = 5)
-        
-        self.send_response_only(200)
-        self.send_header('Content-Type', 'image/png')
-        self.send_header('Access-Control-Allow-Origin', '*')
-        self.end_headers()
-        self.wfile.write(req.content)
+    req = session.get(srcUrl, headers = headers, timeout = 5)
+    return req.content
 
-        req.close()
-        
-
-if __name__ =='__main__':
-    server = HTTPServer(('', 6974), MyHandler)
-    print("mangafinder server on")
-    server.serve_forever()
+if __name__ == "__main__":
+    ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS)
+    ssl_context.load_cert_chain(certfile='server.crt', keyfile='server.key', password='parkpark1')
+    app.run(host="0.0.0.0", port=6974, ssl_context=ssl_context, debug=False)
