@@ -1,4 +1,4 @@
-const server_ip_adderss = '192.168.0.10:6974'
+const server_ip_adderss = '192.168.0.10:8282'
 
 let clickedElement = null;
 
